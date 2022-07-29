@@ -26,7 +26,7 @@ symbol *out_file (char *file_name)
         {
             sym = (symbol *) malloc(sizeof(symbol));
             sym->ch = ch[i];
-            sym->freq = 1;
+            sym->freq = (float) 1 / fsize;
             sym->next = NULL;
         }
         else
@@ -35,14 +35,14 @@ symbol *out_file (char *file_name)
             {
                 if (psym->ch == ch[i])
                 {
-                    psym->freq++;
+                    psym->freq =  (psym->freq * fsize + 1) / fsize;
                     break;
                 }
                 if (psym->next == NULL)
                 {
                     symbol *new_sym = (symbol *) malloc(sizeof(symbol));
                     new_sym->ch = ch[i];
-                    new_sym->freq = 1;
+                    new_sym->freq = (float) 1 / fsize;
                     new_sym->next = NULL;
                     psym->next = new_sym;
                     break;

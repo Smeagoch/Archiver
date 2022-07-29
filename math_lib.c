@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include "type.h"
 
-symbol *descen_sort(symbol *sym)
+void descen_sort(symbol **sym)
 {
-    symbol *iback = sym;
-    for (symbol *i = sym; i->next != 0; i = i->next)
+    symbol *iback = *sym;
+    for (symbol *i = *sym; i->next != 0; i = i->next)
     {
         symbol *jback = i;
         for (symbol *j = i->next; j != NULL; j = j->next)
@@ -19,8 +19,8 @@ symbol *descen_sort(symbol *sym)
                 j->next = k;
                 if (iback == i)
                 {
-                    sym = j;
-                    iback = sym;
+                    *sym = j;
+                    iback = *sym;
                 }
                 k = i;
                 i = j;
@@ -31,5 +31,4 @@ symbol *descen_sort(symbol *sym)
         }
         iback = i;
     }
-    return sym;
 }
