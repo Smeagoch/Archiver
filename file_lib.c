@@ -3,55 +3,54 @@
 #include "type.h"
 #include "file_lib.h"
 
-symbol *out_file (char *file_name)
+symbol *out_file(char *file_name, int *size)
 {
     FILE *out_file = fopen(file_name, "rb");
     if (out_file == NULL)
     {
-        return NULL;   
+        return 0;   
     }
     fseek(out_file, 0, SEEK_END);
     int fsize = ftell(out_file);
     rewind(out_file);
 
-    symbol *sym = NULL;
-    symbol *psym = NULL;
-    unsigned char *ch = (unsigned char *) malloc(fsize * sizeof(unsigned char));
+    symbol *sym = (symbol *) malloc(sizeof(symbol));
+    unsigned char *ch = (unsigned char*) malloc(fsize * sizeof(unsigned char));
 
     fread(ch, 1, fsize, out_file);
     for (int i = 0; i < fsize; i++)
     {
-        psym = sym;
-        if (sym == NULL)
+        if (i == 0)
         {
-            sym = (symbol *) malloc(sizeof(symbol));
+            *size = *size + 1;
             sym->ch = ch[i];
             sym->freq = (float) 1 / fsize;
-            sym->next = NULL;
+            sym->left = NULL;
+            sym->right = NULL;
         }
         else
         {
-            while (1)
+            for (int j = 0; j < *size; j++)
             {
-                if (psym->ch == ch[i])
+                if (sym[j].ch == ch[i])
                 {
-                    psym->freq =  (psym->freq * fsize + 1) / fsize;
+                    sym[j].freq =  (sym[j].freq * fsize + 1) / fsize;
                     break;
                 }
-                if (psym->next == NULL)
+                if (j == *size - 1)
                 {
-                    symbol *new_sym = (symbol *) malloc(sizeof(symbol));
-                    new_sym->ch = ch[i];
-                    new_sym->freq = (float) 1 / fsize;
-                    new_sym->next = NULL;
-                    psym->next = new_sym;
+                    *size = *size + 1;
+                    sym = (symbol *) realloc(sym, *size * sizeof(symbol)); 
+                    sym[*size - 1].ch = ch[i];
+                    sym[*size - 1].freq = (float) 1 / fsize;
+                    sym[*size - 1].left = NULL;
+                    sym[*size - 1].right = NULL;
                     break;
                 }
-                psym = psym->next;
             }
         }
     }
-    fclose(out_file);
     free(ch);
+    fclose(out_file);
     return sym;
 }

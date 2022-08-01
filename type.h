@@ -10,13 +10,17 @@ typedef struct symbol
     unsigned char ch;
     float freq;
     char code[255];
-    struct symbol *next;
+    struct symbol *left;
+    struct symbol *right;
 }symbol;
 
-/*union code
+union code
 {
-    typedef struct byte
+    unsigned char sym_to_write;
+
+    struct byte
     {
+        unsigned b0 : 1;
         unsigned b1 : 1;
         unsigned b2 : 1;
         unsigned b3 : 1;
@@ -24,9 +28,8 @@ typedef struct symbol
         unsigned b5 : 1;
         unsigned b6 : 1;
         unsigned b7 : 1;
-        unsigned b8 : 1;
     }byte;
-};*/
+};
 
 
 #endif /* NEW_TYPES_H */

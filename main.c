@@ -44,27 +44,31 @@ int main(int argc, char *argv[])
         printf("Error!!! More argumenst!!!\n");
         return TOO_MUCH_ARGS;
     }
-    symbol *sym = NULL;
 
-    sym = out_file(argv[1]);
-    for (symbol *i = sym; i != NULL; i = i->next)
+    symbol *sym;
+    int size = 0;
+
+    sym = out_file(argv[1], &size);
+    for (int i = 0; i < size; i++)
     {
-        printf("%c - %f\n", i->ch, i->freq);
+        printf("%c - %f - %s\n", sym[i].ch, sym[i].freq, sym[i].code);
     }
     printf ("\n\n");
     
-    descen_sort(&sym);
-    for (symbol *i = sym; i != NULL; i = i->next)
+    descen_sort(sym, size);
+
+    symbol *branch = NULL;
+    int nbranch = 0;
+    symbol *tree_begin = make_tree(sym, &size, branch, &nbranch);
+    coder_tree(tree_begin, size, NULL, 0);
+
+    for (int i = 0; i < size; i++)
     {
-        printf("%c - %f\n", i->ch, i->freq);
+        printf("%c - %f - %s\n", sym[i].ch, sym[i].freq, sym[i].code);
     }
     printf("\n\n");
-    for (symbol *i = sym; i != NULL;)
-    {
-        symbol *next = i->next;
-        free(i);
-        i = next;
-    }
+
+    free(sym);
 
     return 0;
 }
