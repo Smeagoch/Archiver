@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "type.h"
 
+/* The condition for sorting an array of symbols */
 int descen_sort_comparise(const void *sym1, const void *sym2)
 {
     float freq1 = ((symbol *) sym1)->freq;
@@ -13,23 +14,28 @@ int descen_sort_comparise(const void *sym1, const void *sym2)
     return 0;
 }
 
+/* sorting an array of symbols */
 void descen_sort(symbol *sym, int size)
 {
     qsort(sym, size, sizeof(symbol), &descen_sort_comparise);
 }
 
-symbol *make_tree(symbol *sym, int *size, symbol *branch, int *nbranch)
+/* generating a Huffman tree */
+symbol *make_tree(symbol *sym, int *size, symbol *branch, int nbranch)
 {
+    symbol *return_sym = NULL; 
     if (branch == NULL)
     {
+        /* allocation of memory for tree links */
         branch = (symbol *) malloc((*size - 1) * sizeof(symbol));
-        *nbranch = *size - 1;
-    }
+        nbranch = *size - 1;
 
-    symbol *return_sym = (symbol *) malloc(*size * sizeof(symbol));
-    for (int i = 0; i < *size; i++)
-    {
-        return_sym[i] = sym[i];
+        /* Filling in an array to return to the original sequence of symbols */
+        return_sym = (symbol *) malloc(*size * sizeof(symbol));
+        for (int i = 0; i < *size; i++)
+        {
+            return_sym[i] = sym[i];
+        }
     }
 
     symbol *tree_begin;
@@ -37,27 +43,30 @@ symbol *make_tree(symbol *sym, int *size, symbol *branch, int *nbranch)
 
     tree_begin = &branch[new_size - 1];
 
+    /* Search for the symbol or link with the lowest frequency */
     symbol *min1;
     float min = 1; 
-    for (int i = 0; i < *nbranch + 1; i++)
+    for (int i = 0; i < nbranch + 1; i++)
     {
-        if (min > sym[*nbranch - i].freq)
+        if (min > sym[nbranch - i].freq)
         {
-            min = sym[*nbranch - i].freq;
-            min1 = &sym[*nbranch - i];
+            min = sym[nbranch - i].freq;
+            min1 = &sym[nbranch - i];
         }
     }
     symbol *min2;
     min = 1;
-    for (int i = 0; i < *nbranch + 1; i++)
+    for (int i = 0; i < nbranch + 1; i++)
     {
-        if ((min > sym[*nbranch - i].freq) && (min1 != &sym[*nbranch - i]))
+        if ((min > sym[nbranch - i].freq) && (min1 != &sym[nbranch - i]))
         {
-            min = sym[*nbranch - i].freq;
-            min2 = &sym[*nbranch - i];
+            min = sym[nbranch - i].freq;
+            min2 = &sym[nbranch - i];
         }
     }
 
+    /* connecting symbols and links to each other */
+    /* summation of frequencies for a new link */
     branch[new_size - 1].freq = min2->freq + min1->freq;
     if (min1->left == NULL)
     {
@@ -80,22 +89,32 @@ symbol *make_tree(symbol *sym, int *size, symbol *branch, int *nbranch)
     min2->freq = min2->freq + min1->freq;
     min1->freq = 1;
 
+    /* generation of the next link */
     if (new_size != 1)
         tree_begin = make_tree(sym, &new_size, branch, nbranch);
 
-    for (int i = 0; i < *size; i++)
+    /* return to the original sequence */
+    if (return_sym != NULL)
     {
-        sym[i] = return_sym[i];
+        for (int i = 0; i < *size; i++)
+        {
+            sym[i] = return_sym[i];
+        }
+        free(return_sym);
     }
-
-    free(return_sym);
+    
     return tree_begin;
 }
 
+/* Huffman tree encoding */
 void coder_tree(symbol *tree_begin, int nsymbol, int *left_right, int passage)
 {
+    /* left_right - traversed path through the tree */
+    /* 0 - left; 1 - right */
     if (passage == 0)
         left_right = (int *) malloc(nsymbol * sizeof(int));
+
+    /* journey through the tree */
     if ((tree_begin->left != NULL) && (tree_begin->right != NULL))
     {
         symbol *left = tree_begin->left;
@@ -106,6 +125,7 @@ void coder_tree(symbol *tree_begin, int nsymbol, int *left_right, int passage)
         left_right[passage] = 1;
         coder_tree(right, nsymbol, left_right, passage + 1);
     }
+    /* Character encoding depending on the path traveled */
     else
     {
         for (int i = 0; i < passage; i++)
@@ -114,6 +134,7 @@ void coder_tree(symbol *tree_begin, int nsymbol, int *left_right, int passage)
         }
         tree_begin->code[passage] = 0;
     }
+
     if (passage == 0)
     {
         free(left_right);

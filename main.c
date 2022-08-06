@@ -7,6 +7,7 @@
 #define TOO_MUCH_ARGS 1
 #define NO_ARGS 2
 #define LATE_FLAG 3
+#define EMPTY_FILE 4
 
 void help()
 {
@@ -49,27 +50,20 @@ int main(int argc, char *argv[])
     int size = 0;
 
     sym = out_file(argv[1], &size);
-    for (int i = 0; i < size; i++)
+    if (sym == NULL)
     {
-        printf("%c - %f - %s\n", sym[i].ch, sym[i].freq, sym[i].code);
+        printf("Error!!! The file is missing or empty!!!\n");
+        return EMPTY_FILE;
     }
-    printf ("\n\n");
-    
+
     descen_sort(sym, size);
 
-    symbol *branch = NULL;
-    int nbranch = 0;
-    symbol *tree_begin = make_tree(sym, &size, branch, &nbranch);
+    symbol *tree_begin = make_tree(sym, &size, NULL, 0);
     coder_tree(tree_begin, size, NULL, 0);
 
-    for (int i = 0; i < size; i++)
-    {
-        printf("%c - %f - %s\n", sym[i].ch, sym[i].freq, sym[i].code);
-    }
-    printf("\n\n");
+    in_file(sym, size, argv[1]);
 
-    in_file(sym, size, "text_file.txt");
-    printf("%c %c %c %c %c\n", 17, 200, 150, 146, 192);
+    free(tree_begin);
     free(sym);
 
     return 0;

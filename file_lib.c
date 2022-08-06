@@ -5,25 +5,33 @@
 #include "type.h"
 #include "file_lib.h"
 
+/* byte-by-byte reading function from a file */
 symbol *out_file(char *file_name, int *size)
 {
     FILE *out_file = fopen(file_name, "rb");
     if (out_file == NULL)
     {
-        return 0;   
+        return NULL;
     }
+
+    /* Finding the file size */
     fseek(out_file, 0, SEEK_END);
     int fsize = ftell(out_file);
     rewind(out_file);
 
-    symbol *sym = (symbol *) malloc(sizeof(symbol));
+    /* reading all symbols from a file */
+    symbol *sym = NULL;
     unsigned char *ch = (unsigned char*) malloc(fsize * sizeof(unsigned char));
 
     fread(ch, 1, fsize, out_file);
+
+    /* Filling in an array of symbol structures */
+    /* For each symbol, the frequency with which it occurs is found */
     for (int i = 0; i < fsize; i++)
     {
         if (i == 0)
         {
+            sym = (symbol *) malloc(sizeof(symbol));
             *size = *size + 1;
             sym->ch = ch[i];
             sym->freq = (float) 1 / fsize;
@@ -57,8 +65,10 @@ symbol *out_file(char *file_name, int *size)
     return sym;
 }
 
+/* Writing an encoded message to a file */
 void in_file(symbol *sym, int size, char *file_name)
 {
+    /* Reading a sequence of symbols from the original file */
     FILE *out_file = fopen(file_name, "rb");
     fseek(out_file, 0, SEEK_END);
     int fsize = ftell(out_file);
@@ -69,6 +79,7 @@ void in_file(symbol *sym, int size, char *file_name)
 
     fclose(out_file);
 
+    /* Generating a new file name */
     char *new_file_name = (char *) malloc(sizeof(char));
     for(int i = 0; i < strlen(file_name); i++)
     {
@@ -83,12 +94,13 @@ void in_file(symbol *sym, int size, char *file_name)
             break;
         }
     }
-    char format[] = "ne_hui_Egora";
+    char format[] = "arxiv";
     new_file_name = (char *) realloc(new_file_name, (strlen(new_file_name) + strlen(format) + 1) * sizeof(char));
     strcat(new_file_name, format);
 
     FILE *in_file = fopen(new_file_name, "wb");
 
+    /* message encoding and byte-by-byte writing to a file */
     char buffer_code[255];
     int ch_to_wr = 0;
     int count_to_wr = 0;
@@ -112,7 +124,6 @@ void in_file(symbol *sym, int size, char *file_name)
                     else
                     {
                         unsigned char wr_ch = ch_to_wr;
-                        printf("%c - %d\n", wr_ch, wr_ch);
                         fwrite(&wr_ch, 1, 1, in_file);
                         ch_to_wr = 0;
                         count_to_wr = 0;
@@ -130,7 +141,6 @@ void in_file(symbol *sym, int size, char *file_name)
     if (count_to_wr != 1)
     {
         unsigned char wr_ch = ch_to_wr;
-        printf("%c - %d\n", wr_ch, wr_ch);
         fwrite(&wr_ch, 1, 1, in_file);
     }
     free(ch);

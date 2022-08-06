@@ -7,9 +7,11 @@
 
 typedef struct symbol
 {
-    unsigned char ch;
-    float freq;
-    char code[255];
+    unsigned char ch; // symbol
+    float freq; // the frequency with which the character occurs in the file
+    char code[255]; // new symbol encoding
+
+    /* addresses for tree formation */
     struct symbol *left;
     struct symbol *right;
 }symbol;
