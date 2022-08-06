@@ -68,6 +68,8 @@ int main(int argc, char *argv[])
     }
     printf("\n\n");
 
+    in_file(sym, size, "text_file.txt");
+    printf("%c %c %c %c %c\n", 17, 200, 150, 146, 192);
     free(sym);
 
     return 0;

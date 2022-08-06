@@ -14,22 +14,4 @@ typedef struct symbol
     struct symbol *right;
 }symbol;
 
-union code
-{
-    unsigned char sym_to_write;
-
-    struct byte
-    {
-        unsigned b0 : 1;
-        unsigned b1 : 1;
-        unsigned b2 : 1;
-        unsigned b3 : 1;
-        unsigned b4 : 1;
-        unsigned b5 : 1;
-        unsigned b6 : 1;
-        unsigned b7 : 1;
-    }byte;
-};
-
-
 #endif /* NEW_TYPES_H */
